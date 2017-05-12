@@ -1,0 +1,97 @@
+
+ec2 metadata getting ec2 metadata (available from the localhost only)
+ec2 metadata curl -s http://169.254.169.254/latest/user-data
+ec2 metadata see: http://docs.aws.amazon.com/AWSEC2/latest/UserGuide/ec2-instance-metadata.html but also http://docs.aws.amazon.com/AWSEC2/latest/UserGuide/Using_Tags.html#Using_Tags_CLI (these tags can be set via console also)
+
+(fake creds) aws s3 get AWS_ACCESS_KEY_ID=AKJLKSDFJLSKDFJDSLS6WQ AWS_SECRET_ACCESS_KEY=N+fdjkFJ8dfjd8F09K aws get 123456596101-repo/stable.tgz /tmp/stable.tgz
+
+terminate ec2 
+terminate ec2 >>> from fabec2 import *
+terminate ec2 >>> conn = EC2Connection(V_AWS_ACCESS_KEY_ID, V_AWS_SECRET_ACCESS_KEY)
+(fake instance name) terminate ec2 >>> conn.terminate_instances("i-d24ff9fa")
+
+example of working rsync --exclude --include
+# 01 07 * * * rsync  -avz --include '*/' --include '*.tgz'  --exclude='*.*'  example.com:/raid-1/backup/example/ . >> /tmp/rsync-svn-backup.txt 2>&1
+
+listing rpm contents Use following syntax to list the files for RPM package:  rpm -qlp package.rpm 
+
+telnet mailhost  then    25 helo frommail.com
+
+compiling libcurl: ./configure --with-ssl CPPFLAGS="-I/tmp/SRC/openssl-1.0.0/include" LDFLAGS="-L/usr/local/ssl/lib" ./configure  --with-ssl --prefix /home/myuser --exec-prefix /home/myuser
+
+pycurl: python setup.py install --curl-config=/home/myuser/bin/curl-config      import pycurl; curl_info = pycurl.version_info()
+
+compiling nginx: ./configure --with-http_ssl_module --with-openssl=/root/SRC/openssl-1.0.0
+
+openssl req -new -x509 -nodes -out server.crt -keyout server.key
+
+Generate godaddy GoDaddy csr:    openssl req -new -newkey rsa:2048 -nodes -keyout yourdomain.key -out yourdomain.csr    or with existing key:     openssl req -new -key devmail.example.com.key -nodes  -out devmail.example.com.csr
+
+
+ssl No Passphrase:    1042  openssl genrsa -out jabber.example.com.key 2048    1043  openssl req -new -x509  -days 3650 -out server.pem -key jabber.example.com.key      1045  cat jabber.example.com.key >> server.pem 
+
+with Passphrase:    openssl req -new -x509 -newkey rsa:2048 -days 3650 -keyout privkey.pem -out server.pem
+
+cert Info:    openssl x509 -noout -in cert.pem -issuer -subject -dates
+
+discovery log IPs >>> SRE = re.compile("[ {][']smtp.mail.yahoo.com['][:] [[](?P<ips>.*?)[]][},]")
+
+otool -L library-name.dylib     otool for .o .dylib library link 
+
+32-bit 32 bit https://help.ubuntu.com/community/MultiArch  (add :i386 to apt-get e.g. apt-get install liblzma5:i386)
+
+virtualbox networking see http://superuser.com/questions/456057/static-ip-for-ubuntu-server-in-virtualbox-using-bridged-adapter and also http://koansys.com/tech/create-virtualbox-clone-with-its-own-mac-address - the trick is to remove the /etc/udev/rules.d/70-persistent-net.rules file on the BASE box that you are just using for cloning OR, remove it on the new (cloned) box
+
+ec2-raid setting: http://docs.aws.amazon.com/AWSEC2/latest/UserGuide/InstanceStorage.html
+ec2-raid Configuring drives for RAID initializes them by writing to every drive location. When configuring software-based RAID, make sure to change the minimum reconstruction speed: echo $((30*1024)) > /proc/sys/dev/raid/speed_limit_min
+
+ec2-raid ec2 raid aws raid http://www.gabrielweinberg.com/blog/2011/05/raid0-ephemeral-storage-on-aws-ec2.html
+
+vim no colors: see http://vim.wikia.com/wiki/How_to_turn_off_all_colors
+vim no colors syntax off; set nohlsearch; set t_Co=0
+
+ends with equal sign, see quoted-printable        
+
+enable auth digest auth_digest ROOT-- box30 a2enmod auth_digest AuthDigestDomain
+
+google less secure setting https://www.google.com/settings/security/lesssecureapps
+
+git undo: did the checkin but did not push: git reset --soft HEAD~1
+git undo: staged but did not commit: 26081  git reset HEAD python/module-source/example/cfft/ilootize.c 
+git undo: did the checkin and did push: git revert <commit #> and then git push
+
+using the ec2 volume -     lsblk   ;   file -s /dev/xvdf   (should be data)    ;  mkfs -t ext4 /dev/xvdf      ;      mkdir /data    ;    add lines to /etc/fstab   ;    mount -a
+format new ec2 volume http://docs.aws.amazon.com/AWSEC2/latest/UserGuide/ebs-using-volumes.html
+format new ec2 volume       lsblk     file -s /dev/xvdf     mkfs -t ext4 /dev/xvdf        mkdir /mountpoint    vi /etc/fstab      mount -a
+
+preprocessor defines: http://stackoverflow.com/questions/2224334/gcc-dump-preprocessor-defines     __linux__    __APPLE__    __ANDROID__    _WIN32
+
+ifdef (or ifndef)  elif else endif  is the way c preprocessor works
+
+mac host name scutil –-set HostName MacBookPro  also ComputerName LocalHostName
+(see the other names, though)
+
+fake example https://www.dropbox.com/s/jljomoud21duuxf/example-debug.apk?dl=0
+
+git .gitolote/hooks/common/post-receive
+
+note: ssh -i ---- it is not compatible with ssh-agent apparently
+
+nagios nrpe check from master: https://www.linuxos.pro/manually-run-a-nagios-check/
+
+to install 1.5 haproxy on trusty:  see http://haproxy.debian.net/#?distribution=Ubuntu&release=trusty&version=1.5
+to install 1.5 haproxy on trusty:  # echo deb http://archive.ubuntu.com/ubuntu trusty-backports main universe | tee /etc/apt/sources.list.d/backports.list     ;    then    # apt-get update    then     # apt-get install haproxy -t trusty-backports
+
+pem to authorized_keys compat: ssh-keygen -f fromaws.pem -y > fromaws.pub
+
+using hsm http://www.smartcard-hsm.com/2014/11/10/USB-Stick_with_new_id.html
+
+generate bootable ubuntu usb using osx dd:   1) format to fat with disk utility  2) find it with diskutil list  3) unmount it:  diskutil unmountDisk /dev/disk4   4) cd into directory with the image   5) (note the rdisk4 - with the r in front) use dd:   dd if=ubuntu-14.04.4-server-amd64.iso of=/dev/rdisk4 bs=1m   5) you will get a popup saying this disk is not readable - GOOD! - eject
+
+postgres permissions - not enough to do createuser, also need to: GRANT SELECT ON ALL TABLES IN SCHEMA public TO bobby;
+
+possible SPF: v=spf1 mx  include:spf.protection.outlook.com include:customeriomail.com ~all
+
+#example of scanning the debians debs cd /var/www/debs/staging && /usr/bin/dpkg-scanpackages amd64|/bin/gzip -9c > /var/www/debs/staging/amd64/Packages.gz 
+#pulling just the right one: first on target machine put deb http://10.114.155.33/debs/staging/ amd64/ into example.staging.sources.list and then  doit('apt-get update -o Dir::Etc::sourcelist="sources.list.d/example.staging.sources.list" -o Dir::Etc::sourceparts="-" -o APT::Get::List-Cleanup="0" ')
+
