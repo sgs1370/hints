@@ -26,6 +26,8 @@ compiling nginx: ./configure --with-http_ssl_module --with-openssl=/root/SRC/ope
 openssl req -new -x509 -nodes -out server.crt -keyout server.key
 
 Generate godaddy GoDaddy csr:    openssl req -new -newkey rsa:2048 -nodes -keyout yourdomain.key -out yourdomain.csr    or with existing key:     openssl req -new -key devmail.example.com.key -nodes  -out devmail.example.com.csr
+godaddy cert is on top then gd_bundle:   cat wildcard-outlook.inky.com.crt gd_bundle-g2-g1.crt >> bundled-wildcard-outlook.inky.com.crt 
+
 
 
 ssl No Passphrase:    1042  openssl genrsa -out jabber.example.com.key 2048    1043  openssl req -new -x509  -days 3650 -out server.pem -key jabber.example.com.key      1045  cat jabber.example.com.key >> server.pem 
