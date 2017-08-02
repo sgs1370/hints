@@ -97,3 +97,27 @@ possible SPF: v=spf1 mx  include:spf.protection.outlook.com include:customerioma
 #example of scanning the debians debs cd /var/www/debs/staging && /usr/bin/dpkg-scanpackages amd64|/bin/gzip -9c > /var/www/debs/staging/amd64/Packages.gz 
 #pulling just the right one: first on target machine put deb http://10.114.155.33/debs/staging/ amd64/ into example.staging.sources.list and then  doit('apt-get update -o Dir::Etc::sourcelist="sources.list.d/example.staging.sources.list" -o Dir::Etc::sourceparts="-" -o APT::Get::List-Cleanup="0" ')
 
+haproxy-redirect-https
+haproxy-redirect-https #---------------------------------------------------------------------
+haproxy-redirect-https # Redirect to secured
+haproxy-redirect-https #---------------------------------------------------------------------
+haproxy-redirect-https frontend unsecured 
+    haproxy-redirect-https bind *:80
+    haproxy-redirect-https mode http
+    haproxy-redirect-https redirect scheme https if !{ ssl_fc }
+haproxy-redirect-https 
+haproxy-redirect-https #---------------------------------------------------------------------
+haproxy-redirect-https # frontend secured
+haproxy-redirect-https #---------------------------------------------------------------------
+haproxy-redirect-https frontend  secured 
+   haproxy-redirect-https bind *:443
+   haproxy-redirect-https mode  tcp
+   haproxy-redirect-https default_backend      app
+haproxy-redirect-https 
+haproxy-redirect-https #---------------------------------------------------------------------
+haproxy-redirect-https # round robin balancing between the various backends
+haproxy-redirect-https #---------------------------------------------------------------------
+haproxy-redirect-https backend app
+    haproxy-redirect-https mode  tcp
+    haproxy-redirect-https balance roundrobin
+    haproxy-redirect-https server 10.168.83.181 10.168.83.181:8080 
