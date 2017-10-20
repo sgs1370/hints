@@ -121,3 +121,10 @@ haproxy-redirect-https backend app
     haproxy-redirect-https mode  tcp
     haproxy-redirect-https balance roundrobin
     haproxy-redirect-https server 10.168.83.181 10.168.83.181:8080 
+
+example glacier: root@ip-10-88-229-196:/g300# aws glacier upload-archive --vault-name 2013_2014_dumplogs --account-id - --archive-description yet-more-ms-dump-logs.tgz --body ms-dumps.tgz 
+
+iam-role list:  aws ec2 describe-iam-instance-profile-associations
+iam-role assign: aws ec2 associate-iam-instance-profile --instance-id i-9c43cb43756109d40 --iam-instance-profile Name=ec2-profile-server-role
+
+
