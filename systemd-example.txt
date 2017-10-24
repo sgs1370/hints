@@ -1,0 +1,523 @@
+Example of systemd unit file and installation, using a program that pulls from an sqs queue and pushes the URL of the output of a cmd to another queue and that URL pushed to Hipchat channel
+
+* General:
+
+Great docs:  https://access.redhat.com/documentation/en-US/Red_Hat_Enterprise_Linux/7/html/System_Administrators_Guide/sect-Managing_Services_with_systemd-Resources.html
+
+Put psqs.service in /etc/systemd/system
+chmod 664 /etc/systemd/system/psqs.service
+
+systemctl daemon-reload
+
+and
+
+
+systemctl start psqs.service 
+
+or 
+
+systemctl stop psqs.service 
+
+To have it run at boot: 
+
+systemctl enable psqs.service 
+
+What group?
+User=sgs
+Group=sgs
+
+If not forking/detaching:
+Type=simple
+
+===
+
+systemctl status psqs.service
+
+SHOULD GIVE IF RUNNING:
+
+● psqs.service - Pull-from SQS Watcher
+   Loaded: loaded (/etc/systemd/system/psqs.service; enabled; vendor preset: enabled)
+   Active: active (running) since Tue 2017-10-24 16:41:35 UTC; 26min ago
+ Main PID: 1052 (python)
+    Tasks: 3
+   Memory: 48.5M
+      CPU: 2.590s
+   CGroup: /system.slice/psqs.service
+           ├─1052 python /home/arcmgr/bin/pullsqs-wrapper.py start
+           ├─1139 python /home/arcmgr/bin/pullsqs-wrapper.py start
+           └─1140 /usr/bin/python /home/arcmgr/bin/pull-from-sqs.py
+
+This is what is in the /var/log/messages
+Oct 24 16:41:35 ip-10-233-149-68 systemd[1]: Started Pull-from SQS Watcher.
+
+
+
+
+The psqs.service file:
+
+[Unit]
+Description=Pull-from SQS Watcher
+After=syslog.target network.target
+
+[Service]
+Type=simple
+ExecStart=/home/field/bin/pullsqs-wrapper.py start
+ExecStop=/home/field/bin/pullsqs-wrapper.py stop
+User=field
+Group=field
+
+[Install]
+WantedBy=multi-user.target
+
+
+the wrapper file which psqs.service launches
+
+#!/usr/bin/env python
+
+# prereq for the prod boxes to run this:
+# (using the  python)
+# git clone https://github.com/pexpect/pexpect.git
+# cd pexpect 
+# python setup.py install
+# git clone https://github.com/pexpect/ptyprocess.git
+# cd ptyprocess 
+# python setup.py install
+
+
+
+import os,sys
+import multiprocessing, subprocess
+import time
+from ConfigParser import ConfigParser
+from datetime import datetime
+import getpass
+import pexpect
+
+CFG = {}
+CFG['program_long'] = 'PSQSSERVER'
+CFG['program_short'] = 'PSQS'
+CFG['config_file'] = 'psqs.json'
+
+log_dir = None
+if 'HOME' in os.environ:
+    homedir = os.environ['HOME']
+else:
+    homedir = "/home/field"
+logs_subdir = os.path.join(homedir,"logs")
+if os.path.exists(logs_subdir):
+    log_dir = logs_subdir
+else:
+    log_dir = homedir
+
+PROGRAMDIR = os.path.join(homedir,'bin')
+PROGFN = "pull-from-sqs.py"
+# remember to mkdir $HOME/PROGRAM_FULLPATH_PIDS
+PROGRAM_FULLPATH = os.path.join(PROGRAMDIR,PROGFN)
+WRAPROOT="vs-wrapper"
+WRAPPER=WRAPROOT + ".py"
+
+# EXEROOT will be what we want in the log
+# for engr programs it will be PROGROOT.lower()
+EXEROOT = WRAPROOT
+
+
+def start_instructions():
+    print "You should start with:\n cd /ops/linux/2.7/bin && LD_LIBRARY_PATH=/ops/linux/2.7/lib PATH=/ops/linux/2.7/bin:/bin:/usr/bin /ops/linux/2.7/bin/%s " % WRAPPER
+    sys.exit()
+
+if True:
+    pass
+elif 'LD_LIBRARY_PATH' in os.environ:
+    lpaths = os.environ['LD_LIBRARY_PATH'].split(':')
+    if lpaths[0].startswith('/ops'):
+        pass
+    else:
+        start_instructions()
+else:
+    start_instructions()
+
+if True:
+    pass
+elif 'PATH' in os.environ:
+    bpaths = os.environ['PATH'].split(':')
+    if bpaths[0].startswith('/ops/linux/2.7/bin'):
+        pass
+    else:
+        start_instructions()
+else:
+    start_instructions()
+
+class alog(object):
+    def __init__(self):
+        pass
+    def info(self,*msg):
+        print msg
+    def exception(self,*msg):
+        print msg
+    def error(self,*msg):
+        print msg
+    def performance(self,*msg):
+        print msg
+
+log = alog()
+
+class log_redirector(object):
+    def __init__(self, source, original):
+        import log
+        self.original = original
+        if source == 'stdout':
+            self.prefix = 'STDOUT'
+            self.log_function = log.info
+        else:
+            self.prefix = 'STDERR'
+            self.log_function = log.error
+
+    def flush(self):
+        pass
+
+    def write(self, text):
+        try:
+            if text == '\n' or text == '' or text == ' ' or text == '  ':
+                return
+            self.log_function('%s: %s', self.prefix, text)
+        except:
+            # If there's an exception logging, then just write to the original output stream
+            self.original.write(text)
+
+
+    #
+    # Set up logging. The log module will look for a function in our namespace called create_logger.
+    #
+
+
+global create_logger
+
+def create_logger():
+    from clog import logger
+    class default_logger(logger):
+        LOG_ANNOTATION = EXEROOT
+    return default_logger(os.path.join(log_dir, '%s.log' % EXEROOT),totalsize=32*1024*1024*1024)
+
+#import log
+#from log import GLOBAL_LOGGER
+
+#sys.stdout = log_redirector('stdout', sys.stdout)
+#sys.stderr = log_redirector('stderr', sys.stderr)
+
+#from clog import logger
+#GLOBAL_LOGGER.set_filter(logger.ALL)
+
+inkydir = None
+if 'INKY' in os.environ:
+    inkydir  = os.environ['INKY']
+
+def removepath_startswith(prefix):
+    paths = os.environ["PATH"].split(os.pathsep)
+    toremove = []
+    for p in paths:
+        if p.startswith(prefix):
+            toremove.append(p)
+    for p in toremove:
+        paths.remove(p)
+    newpaths = os.pathsep.join(paths)
+    os.environ["PATH"] = newpaths
+
+def addpath(pathstr,where="front"):
+    paths = os.environ["PATH"].split(os.pathsep)
+    if pathstr in paths:
+        return
+    newpaths_l = [pathstr]
+    newpaths_l.extend(paths)
+    newpaths = os.pathsep.join(newpaths_l)
+    os.environ["PATH"] = newpaths
+
+def mkdirs(pathname):
+    (head, tail) = os.path.split(pathname)
+    try:
+        # Make sure the path exists
+        os.makedirs(head)
+    except:
+        pass
+
+def sanity_check():
+    # check disk/memory/swap
+    # check network
+    # check no other copy of this keepalive is running
+    # log to our own logfile the time
+    return
+
+def backup_logfile():
+    # backup the stdout file and name it as the start/end filename
+    return
+
+def logit(msg, dir=None):
+    import time
+    t_time = str(time.time())
+    if msg == '':
+        return
+
+    if msg.startswith('loop'):
+        if not t_time.split('.')[0].endswith('00'):
+            return
+
+    if dir is None:
+        dir = "/tmp"
+
+    logsuf = ''
+
+    print t_time + " " +  str(msg).rstrip()
+
+
+
+# pids dir
+if 'HOME' in os.environ:
+    homedir = os.environ['HOME']
+else:
+    homedir = "/home/field"
+os.chdir(homedir)
+
+pidsdir = os.path.join(homedir, "%s_PIDS" % (CFG['program_long']))
+mkdirs(os.path.join(pidsdir, "."))
+
+def stop_all_psqs(pidsdir):
+    import os,signal
+    import glob
+    os.chdir(pidsdir)
+    for fn in glob.glob('*'):
+        with open(fn,'r') as f:
+            try:
+                t_pid = f.read()
+                print "Trying to kill %d" % int(t_pid)
+                os.kill(int(t_pid),signal.SIGKILL)
+            except:
+                pass
+    
+if len(sys.argv) > 1 and sys.argv[1] == 'stop':
+    stop_all_psqs(pidsdir)
+    sys.exit()
+
+mypid = os.getpid()
+wrapper_pidfile = os.path.join(pidsdir, "%s_WRAPPER_PID" % CFG['program_short'])
+with open(wrapper_pidfile, "w") as pf:
+    pf.write(str(mypid))
+    pf.close()
+
+
+wrapper_log = True
+
+
+# these are blank but show how to add command lines or the -c config.json
+#config_fullpath = os.path.join(homedir,CFG['config_file'])
+#cls = [('c',config_fullpath)]
+cls = []
+cl_args = []
+for (clk, clv) in cls:
+    optstr = "-%s" % clk
+    cl_args.append(optstr)
+    cl_args.append(clv)
+
+# here is where we will fix the output
+flags = []
+for (flag, flagval) in flags:
+    if flag == 'o':
+        wrapper_log = False
+
+arglist = []
+arglist.append(PROGRAM_FULLPATH)
+arglist.extend(cl_args)
+
+import copy
+
+c = copy.deepcopy(arglist)
+is_cmd = c
+
+jobpid = 0
+job = None
+
+def callnew(arglist):
+    
+    fout = open(os.devnull, "w")
+
+    cmd = " ".join(arglist)
+    #os.environ['LD_LIBRARY_PATH'] = "/skdfj/linux/2.7/lib"
+    child = pexpect.spawn(cmd)
+    #os.environ['LD_LIBRARY_PATH'] = "/ops/linux/2.7/lib"
+    
+    child.logfile = fout
+
+    mypid = child.pid
+    wrapper_child_pidfile = os.path.join(pidsdir, "%s_PID_WRAPCHILD" % (CFG['program_long']))
+    with open(wrapper_child_pidfile, "w") as pf:
+        pf.write(str(mypid))
+        pf.close()
+
+    time.sleep(1.0)
+    if child.isalive():
+        child.wait()
+
+    return 1
+
+logit("entering main loop")
+
+while True:
+
+    #removepath_startswith('/ops')
+    #removepath_startswith('/home/field')
+    #removepath_startswith('/var')
+    #addpath("/skdfj/linux/2.7/bin")
+    
+    sanity_check()
+    backup_logfile()
+    os.chdir(PROGRAMDIR)
+
+    logit("loop starting")
+    if True:
+        arglist = is_cmd
+        if jobpid < 1 or ((jobpid > 0) and not job.is_alive()):
+            try:
+                if jobpid > 0:
+                    print "about to start",arglist, "job.is_alive() is:" , job.is_alive()
+                else:
+                    print "about to start",arglist
+                is_proc = multiprocessing.Process(name='keepalive-',target=callnew,args=(arglist,))
+                is_proc.start()
+                mypid = is_proc.pid
+                wrapper_child_pidfile = os.path.join(pidsdir, "%s_PID" % (CFG['program_long']))
+                with open(wrapper_child_pidfile, "w") as pf:
+                    pf.write(str(mypid))
+                    pf.close()
+                time.sleep(2.0)
+            except Exception as e:
+                print 'exception while creating Process', e
+            else:
+                time.sleep(1.0)
+                jobpid = is_proc.pid
+                job = is_proc
+
+    
+    logit("loop done")
+    time.sleep(1.0)  
+
+* the actual program the wrapper is keeping alive
+
+#!/usr/bin/python
+
+import boto3
+import botocore
+
+session = boto3.session.Session(aws_access_key_id='....', aws_secret_access_key='.....', aws_session_token=None, region_name='us-east-1', botocore_session=None, profile_name=None)
+# Get the service resource
+sqs = session.resource('sqs')
+queue = sqs.get_queue_by_name(QueueName='inputqueue')
+results_queue = sqs.get_queue_by_name(QueueName='outputqueue')
+
+session_s3 = boto3.Session(aws_access_key_id='....', aws_secret_access_key='...', aws_session_token=None, region_name='us-east-1', botocore_session=None, profile_name=None)
+s3 = session_s3.resource('s3')
+
+def send_hipchat(msg):
+
+    #curl -d '{"color":"green","message":"My first notification (yey)","notify":false,"message_format":"text"}' -H 'Content-Type: application/json' https://inky.hipchat.com/v2/room/3040438/notification?auth_token=alskdfjasldfjkasldfjkasdvr2MQ4XsfZJgZOrvrN7mc
+
+    cmd = ("curl -d '{"  '"color":"green","message":"%s","notify":false,"message_format":"text"}'  "' -H 'Content-Type: application/json' https://inky.hipchat.com/v2/room/3040438/notification?auth_token=vr2MQalsdkfjsldkfjsdlkfjsdlkfjrdQhrvrN7mc") % msg
+
+    #print cmd
+    bt(cmd)
+
+def store_s3(msg):
+    global s3
+    s3.Object('web-remds','output1.txt').put(Body=msg.encode('ascii','ignore'),ContentType="text/plain")
+    bucket = s3.Bucket('web-remds')
+    bucket.Acl().put(ACL='public-read')
+    response = s3.Object('web-remds','output1.txt').Acl().put(ACL='public-read')
+    return response
+
+def bt(cmd,verbose=False):
+    import subprocess
+    p = subprocess.Popen(cmd,shell=True,stdout=subprocess.PIPE,stderr=subprocess.PIPE)
+    (stdout,stderr) = p.communicate()
+    if verbose:
+        print stdout,stderr
+    return (stdout,stderr)
+
+
+
+def push_action_results(action):
+    
+    if action == 'uptime':
+        (stdout,stderr) = bt('uptime')
+    else:
+        (stdout,stderr) = bt('ps auxfwwwww')
+
+    response = results_queue.send_messages(Entries=[
+        {
+            'Id': '1',
+            'MessageBody': stdout
+        }
+    ])
+    
+    #print 'done sending to queue', response
+    store_s3(stdout)
+    send_hipchat("http://web-remds.s3-website-us-east-1.amazonaws.com/output1.txt")
+
+
+action = None
+
+import time
+while True:
+    #print "here1"
+    # Process messages by printing out body and optional author name
+    for message in queue.receive_messages(MessageAttributeNames=['action']):
+        #print message
+        try: 
+            # to enter at AWS console, it is the Attributes tab
+            action = message.message_attributes.get('action').get('StringValue')
+        except Exception as e: 
+            print "message processing failed: ", repr(e)
+        finally:
+            message.delete()
+    
+    if action is not None:
+        #print action
+        push_action_results(action)
+        action = None
+        time.sleep(10.0)
+    time.sleep(5.0)
+    #print "here2"
+
+
+
+
+* output of ps auxfwwww after reboot
+
+field    1052  0.0  0.2  31160  8928 ?        Ss   16:41   0:00 python /home/field/bin/pullsqs-wrapper.py start
+field    1139  0.0  0.2  39608  8276 ?        S    16:41   0:00  \_ python /home/field/bin/pullsqs-wrapper.py start
+field    1140  0.1  1.0  91840 38748 pts/0    Ss+  16:41   0:02      \_ /usr/bin/python /home/field/bin/pull-from-sqs.py
+
+
+* what is in the PID files
+
+admin1 10.233.149.68 % ls -lR ~/PSQSSERVER_PIDS/
+/home/field/PSQSSERVER_PIDS/:
+total 12
+-rw-r--r-- 1 field field 4 Oct 24 16:41 PSQSSERVER_PID
+-rw-r--r-- 1 field field 4 Oct 24 16:41 PSQSSERVER_PID_WRAPCHILD
+-rw-r--r-- 1 field field 4 Oct 24 16:41 PSQS_WRAPPER_PID
+
+admin1 10.233.149.68 % cat ~/PSQSSERVER_PIDS/PSQSSERVER_PID
+1139
+admin1 10.233.149.68 % 
+
+admin1 10.233.149.68 % 
+
+admin1 10.233.149.68 % cat ~/PSQSSERVER_PIDS/PSQSSERVER_PID_WRAPCHILD 
+1140
+admin1 10.233.149.68 % 
+
+admin1 10.233.149.68 % 
+
+admin1 10.233.149.68 % 
+
+admin1 10.233.149.68 % 
+
+admin1 10.233.149.68 % cat ~/PSQSSERVER_PIDS/PSQS_WRAPPER_PID 
+1052
