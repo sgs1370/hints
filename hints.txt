@@ -128,3 +128,15 @@ iam-role list:  aws ec2 describe-iam-instance-profile-associations
 iam-role assign: aws ec2 associate-iam-instance-profile --instance-id i-9c43cb43756109d40 --iam-instance-profile Name=ec2-profile-server-role
 
 
+unattended upgrades / apt lock / dpkg lock: 
+unattended upgrades / apt lock / dpkg lock: Looks like Ubuntu 16.04 introduces unattended upgradey by default via a systemd timer:
+unattended upgrades / apt lock / dpkg lock: http://www.hiroom2.com/2016/05/18/ubuntu-16-04-auto-apt-update-and-apt-upgrade/
+unattended upgrades / apt lock / dpkg lock:
+unattended upgrades / apt lock / dpkg lock: I can find the relevant files here:
+unattended upgrades / apt lock / dpkg lock:
+unattended upgrades / apt lock / dpkg lock: /lib/systemd/system/apt-daily.service
+unattended upgrades / apt lock / dpkg lock: /lib/systemd/system/apt-daily.timer
+unattended upgrades / apt lock / dpkg lock: To disable the above systemd service / timer:
+unattended upgrades / apt lock / dpkg lock:
+unattended upgrades / apt lock / dpkg lock: $ sudo systemctl disable apt-daily.service # disable run when system boot
+unattended upgrades / apt lock / dpkg lock: $ sudo systemctl disable apt-daily.timer   # disable timer run
