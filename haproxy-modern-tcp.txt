@@ -1,0 +1,46 @@
+cat haproxy.cfg 
+# all ips are fake
+global
+	log 127.0.0.1	local0
+	log 127.0.0.1	local1 notice
+	#log loghost	local0 info
+	maxconn 4096
+	chroot /var/lib/haproxy
+	user haproxy
+	group haproxy
+	daemon
+	#debug
+	#quiet
+
+defaults
+	log	global
+	mode	tcp
+	option	dontlognull
+	retries	3
+	redispatch
+	maxconn	2000
+	timeout connect 5s
+	timeout client	5m
+	timeout server	5m
+
+
+frontend outlook
+       bind *:443
+       mode tcp
+       default_backend serversnew
+
+
+backend serversnew
+       server 10.210.49.6 10.210.49.6:8080
+
+frontend test
+       bind *:553
+       mode tcp
+       default_backend serverstest
+
+backend serverstest
+       server 10.53.33.130_0 10.53.33.130:8080
+       server 10.53.33.130_1 10.53.33.130:8081
+       server 10.53.33.130_2 10.53.33.130:8082
+       server 10.53.33.130_3 10.53.33.130:8083
+
