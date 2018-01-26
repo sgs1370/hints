@@ -1,0 +1,123 @@
+    1  cat /etc/clo*
+    2  df -h
+    3  cd /var/
+    4  df -h .
+    5  ls
+    6  cd www
+    7  mkdir www
+    8  mkdir www/html
+    9  chown -R arcmgr www/html
+   10  rm -rf www
+   11  apt-get install apache2
+   12  apt-get install dpkg-dev
+   13  apt-get install dpkg-sig
+   14  cd /var/www
+   15  mkdir profile
+   16  mkdir ipw
+   17  cd profile
+   18  mkdir dists
+   19  cd dists
+   20  mkdir staging
+   21  mkdir prod
+   22  cd staging/
+   23  mkdir main
+   24  cd main
+   25  mkdir binary
+   26  cd binary
+   27  gpg --gen-key
+   28  echo apt-get install rng-tools
+   29  cat "Simon Smith (COO, Inky Technology Corporation) <simon.smith@inky.com>"
+   30  ls  /prod/sys/kernel/random/
+   31  ls  /prod/sys/kernel
+   32  ls  /prod/sys
+   33  "Simon Smith (COO, Inky Technology Corporation) <simon.smith@inky.com>"
+   34  rngd -f -r /dev/urandom
+   35  vi /etc/default/rng-tools
+   36  echo "added the line HRNGDEVICE=/dev/urandom see https://"Simon Smith (COO, Inky Technology Corporation) <simon.smith@inky.com>"
+   37  echo "added the line HRNGDEVICE=/dev/urandom "
+   38  systemctl start rng-tools
+   39  ps axufww|grep rng
+   40  gpg --gen-key
+   41  gpg --list-keys
+   42  "Simon Smith (COO, Inky Technology Corporation) <simon.smith@inky.com>"
+   43  gpg --output keyFile --armor --export 49428BE4
+   44  ls
+   45  cat keyFile
+   46  history > hist1
+https://help.ubuntu.com/community/CreateAuthenticatedRepository
+    1  cat /etc/clo*
+    2  df -h
+    3  cd /var/
+    4  df -h .
+    5  ls
+    6  cd www
+    7  mkdir www
+    8  mkdir www/html
+    9  chown -R arcmgr www/html
+   10  rm -rf www
+   11  apt-get install apache2
+   12  apt-get install dpkg-dev
+   13  apt-get install dpkg-sig
+   14  cd /var/www
+   15  mkdir profile
+   16  mkdir ipw
+   17  cd profile
+   18  mkdir dists
+   19  cd dists
+   20  mkdir staging
+   21  mkdir prod
+   22  cd staging/
+   23  mkdir main
+   24  cd main
+   25  mkdir binary
+   26  cd binary
+   27  gpg --gen-key
+                                                                                                                                          1,5           Top
+
+
+   28  echo apt-get install rng-tools
+   29  cat "Simon Smith (COO, Inky Technology Corporation) <simon.smith@inky.com>"
+   30  ls  /prod/sys/kernel/random/
+   31  ls  /prod/sys/kernel
+   32  ls  /prod/sys
+   33  "Simon Smith (COO, Inky Technology Corporation) <simon.smith@inky.com>"
+   34  rngd -f -r /dev/urandom
+   35  vi /etc/default/rng-tools
+   36  echo "added the line HRNGDEVICE=/dev/urandom see https://"Simon Smith (COO, Inky Technology Corporation) <simon.smith@inky.com>"
+   37  echo "added the line HRNGDEVICE=/dev/urandom "
+   38  systemctl start rng-tools
+   39  ps axufww|grep rng
+   40  gpg --gen-key
+   41  gpg --list-keys
+   42  "Simon Smith (COO, Inky Technology Corporation) <simon.smith@inky.com>"
+   43  gpg --output keyFile --armor --export 49428BE4
+   44  ls
+   45  cat keyFile
+
+https://help.ubuntu.com/community/CreateAuthenticatedRepository
+o
+   49  man dpkg-sig
+   50  vi /usr/local/bin/get-s
+   51  chmod 755 /usr/local/bin/get-s
+   52  get-s arcodemothership_2018.01.25.16.12.developep_amd64.deb
+   53  ls -arlt
+   54  dpkg --sign builder arcodemothership_2018.01.25.16.12.developep_amd64.deb
+   55  dpkg-sig --sign builder arcodemothership_2018.01.25.16.12.developep_amd64.deb
+   56  ls -l arcodemothership_2018.01.25.16.12.developep_amd64.deb
+   57  ls -arlt
+   58  man dpkg-sig
+   59  ls -arlt
+   60  man dpkg-sig
+   61  dpkg-sig --verify arcodemothership_2018.01.25.16.12.developep_amd64.deb
+   62  wget arcodestore_2017.04.15.12.18.rcee_amd64.deb
+   63  get-s arcodestore_2017.04.15.12.18.rcee_amd64.deb
+   64  md5sum arcodestore_2017.04.15.12.18.rcee_amd64.deb
+   65  dpkg-sig --sign builder arcodestore_2017.04.15.12.18.rcee_amd64.deb
+   66  md5sum arcodestore_2017.04.15.12.18.rcee_amd64.deb
+   67  history >> hist1
+
+The dpkg-sig --sign does change the file
+
+
+
+(The Simon Smith lines are an invalid paste due to screen sharing)
