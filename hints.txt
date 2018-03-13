@@ -140,3 +140,8 @@ unattended upgrades / apt lock / dpkg lock: To disable the above systemd service
 unattended upgrades / apt lock / dpkg lock:
 unattended upgrades / apt lock / dpkg lock: $ sudo systemctl disable apt-daily.service # disable run when system boot
 unattended upgrades / apt lock / dpkg lock: $ sudo systemctl disable apt-daily.timer   # disable timer run
+
+aws ntp see https://docs.aws.amazon.com/AWSEC2/latest/UserGuide/set-time.html
+aws ntp check it with chronyc sources -v
+
+
