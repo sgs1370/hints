@@ -145,3 +145,5 @@ aws ntp see https://docs.aws.amazon.com/AWSEC2/latest/UserGuide/set-time.html
 aws ntp check it with chronyc sources -v
 
 
+ aws s3 cp /data/k/ s3://box-backups-to-glacier/ --recursive --exclude "*" --include "*.tgz"
+
