@@ -44,3 +44,29 @@ backend serverstest
        server 10.53.33.130_2 10.53.33.130:8082
        server 10.53.33.130_3 10.53.33.130:8083
 
+
+
+
+
+#### MORE
+#---------------------------------------------------------------------
+# Redirect to secured
+#---------------------------------------------------------------------
+frontend unsecured 
+    bind *:80
+    mode http
+    redirect scheme https if !{ ssl_fc }
+
+
+frontend api
+       bind *:443
+       mode tcp
+       default_backend serversnew
+       option tcplog
+       log /dev/log local0 debug
+
+backend serversnew
+   option httpchk GET /index.html
+   log /dev/log local0 debug
+   server first 72.11.39.27:8080 check-ssl verify none fall 3 rise 2
+   server copy  72.11.39.53:8080 check-ssl verify none fall 3 rise 2
