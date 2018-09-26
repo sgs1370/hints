@@ -1,0 +1,25 @@
+
+
+#https://kubernetes.io/docs/setup/minikube/#installation
+
+curl -Lo minikube https://storage.googleapis.com/minikube/releases/v0.28.2/minikube-linux-amd64 && chmod +x minikube && sudo mv minikube /usr/local/bin/
+
+
+# driver for kvm2
+
+apt-get -y update
+
+apt install libvirt-clients libirt-daemon-system qemu-kvm
+
+# (optional): (avoid so much sudo)
+# sudo usermod -a -G libvirt $(whoami)
+
+curl -Lo docker-machine-driver-kvm2 https://storage.googleapis.com/minikube/releases/latest/docker-machine-driver-kvm2 \
+&& chmod +x docker-machine-driver-kvm2 \
+&& sudo cp docker-machine-driver-kvm2 /usr/local/bin/ \
+&& rm docker-machine-driver-kvm2
+
+
+# to start it...
+# minikube --vm-driver=kvm2 start
+
