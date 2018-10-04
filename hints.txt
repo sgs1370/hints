@@ -148,3 +148,7 @@ aws ntp check it with chronyc sources -v
  aws s3 cp /data/k/ s3://box-backups-to-glacier/ --recursive --exclude "*" --include "*.tgz"
 
 echo diff for reording; cat ../vpc-staging-terra-before-adding-mx/main.tf |sort > 0 ; cat main.tf |sort > 1 ; diff 0 1
+
+sudoers: myuser ALL=(ALL) NOPASSWD:ALL
+sudoers: NOTE1/2: make sure it is low enough in the file
+sudoers: NOTE2/2: make sure you follow the format (just copy another user line & mod)
