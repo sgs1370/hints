@@ -1,0 +1,22 @@
+
+fdisk -l
+fdisk /dev/sda
+Command (m for help): p
+Command (m for help): n
+(use all of the space by accepting defaults)
+
+Command (m for help): w
+[root@cent3 ~]# partprobe
+[root@cent3 ~]# fdisk -l
+
+[root@cent3 ~]# pvcreate /dev/sda6
+[root@cent3 ~]# vgcreate vg-docker /dev/sda6
+
+
+cat << EOF > /etc/sysconfig/docker-storage-setup
+VG=vg-docker
+SETUP_LVM_THIN_POOL=yes
+EOF
+
+[root@cent3 ~]# pvdisplay
+

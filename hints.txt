@@ -152,3 +152,5 @@ echo diff for reording; cat ../vpc-staging-terra-before-adding-mx/main.tf |sort 
 sudoers: myuser ALL=(ALL) NOPASSWD:ALL
 sudoers: NOTE1/2: make sure it is low enough in the file
 sudoers: NOTE2/2: make sure you follow the format (just copy another user line & mod)
+
+rename and set static for centos nmtui     and     hostnamectl set-hostname your-new-hostname
