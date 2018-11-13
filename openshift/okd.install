@@ -1,0 +1,238 @@
+    1  fdisk -l
+    2  exit
+    3  ip a
+    4  nmtui
+    5  reboot
+    6  ip a
+    7  nmtui
+    8  reboot
+    9  ip a
+   10  exit
+   11  export EDITOR=vi
+   12  visudo
+   13  exit
+   14  fdisk -l
+   15  fdisk /dev/sda
+   16  partprobe
+   17   pvcreate /dev/sda6
+   18  vgcreate vg-docker /dev/sda6
+   19  cat << EOF > /etc/sysconfig/docker-storage-setup
+   20  VG=vg-docker
+   21  SETUP_LVM_THIN_POOL=yes
+   22  EOF
+   23  cat  /etc/sysconfig/docker-storage-setup
+   24  pvdisplay
+   25  reboot
+   26  ls .ssh
+   27  ssh-keygen
+   28  ping cent1
+   29  ping cent1.arcode.com
+   30  cat /etc/resolv.conf
+   31  ping google.com
+   32  cat /etc/resolv.conf
+   33  vi /etc/resolv.conf
+   34  dig cent0
+   35  yum -y install dig
+   36  yum search dig
+   37  ping cent1
+   38  NetworkManager 
+   39  ifconfig
+   40  yum install net-tools
+   41  systemctl status NetworkManager.service
+   42  vi /etc/NetworkManager/NetworkManager.conf 
+   43  nmcli
+   44  nmcli dev help
+   45  nmcli con mod eno1 ipv4.dns "192.168.11.1"
+   46  nmcli
+   47  nmcli connection show
+   48  nmcli connection show eno1
+   49  reboot
+   50  ping cen1
+   51  ping cent1
+   52  exit
+   53  env
+   54  vi .bash_profile .bashrc 
+   55  ls -l /
+   56  cd
+   57  ls .ssh
+   58  ls
+   59  cd .ssh
+   60  ls
+   61  cp id_rsa.pub authorized_keys
+   62  ls -arlt
+   63  ssh localhost
+   64  cd ..
+   65  for i in cent1 cent2 cent3 cent4; do
+   66  for i in cent1 cent2 cent3 ; do scp -pr .ssh $i:/root; done
+   67  for i in cent1 cent2 cent3; do ssh $i date; done
+   68  yum -y install docker-1.13.1
+   69  rpm -V docker-1.13.1
+   70  docker version
+   71  systemctl enable docker
+   72  cat /etc/sysconfig/docker-storage-setup 
+   73  docker-storage-setup
+   74  cat /etc/sysconfig/docker-storage
+   75  systemctl start docker
+   76  systemctl is-active docker
+   77  ls /var/lib/
+   78  cd /var/lib/docker
+   79  df -h .
+   80  df -h
+   81  systemctl stop docker
+   82  rm -rf /var/lib/docker/*
+   83  systemctl restart docker
+   84  journalctl -xe
+   85  systemctl stop docker
+   86  rm -rf /var/lib/docker/*
+   87  fdisk -l
+   88  docker-storage-setup 
+   89  cat /etc/sysconfig/docker-storage
+   90  lvs
+   91  df -h 
+   92  lvremove docker-pool
+   93  lvremove vg-docker
+   94  fdisk -l
+   95  pvdisplay
+   96  vgdisplay 
+   97  vgremove vg-docker
+   98  pvs
+   99  rm -rf /var/lib/docker/*
+  100  ps axufwwww
+  101  reboot
+  102  cd /var/lib
+  103  ls
+  104  ls docker
+  105  rm -rf docker/
+  106  vgs
+  107  pvs
+  108  vgcreate vg-docker /dev/sda6 
+  109  cat /etc/sysconfig/docker-storage
+  110  cat /etc/sysconfig/docker-storage-setup 
+  111  docker-storage-setup
+  112  lvs
+  113  cat /etc/sysconfig/docker-storage
+  114  lvs
+  115  rm /etc/sysconfig/docker-storage
+  116  docker-storage-setup
+  117  rm -rf /var/lib/docker
+  118  reboot
+  119  rm -rf /var/lib/docker/
+  120  systemctl stop docker
+  121  systemctl disable docker
+  122  df -h /var/lib/docker
+  123  rm -rf /var/lib/docker/
+  124  lvs
+  125  fdisk -l
+  126  lvs
+  127  lvremove docker-pool
+  128  lvremote -h
+  129  lvremove -h
+  130  lvs
+  131  lvremove docker-pool
+  132  vgremove vg-docker
+  133  lvs
+  134  pvs
+  135   vgcreate vg-docker /dev/sda6
+  136  df -h
+  137  lvs
+  138  pvs
+  139  rm /etc/sysconfig/docker-storage
+  140  cat /etc/sysconfig/docker-storage-setup 
+  141  vi /etc/sysconfig/docker-storage-setup
+  142  docker-storage-setup
+  143  lvs
+  144  df -h
+  145  ls /var/lib
+  146  systemctl start docker
+  147  docker info
+  148  lvs
+  149  lsblk
+  150  lvs
+  151  pvs
+  152  history
+  153  vgs
+  154  df -h
+  155  cd /var/lib
+  156  df -h .
+  157  docker info
+  158  exit
+  159  ssh cent1
+  160  ssh cent2
+  161  ssh cent3
+  162  cat /etc/selinux/config
+  163  which ansible
+  164   yum  -y install wget git net-tools bind-utils yum-utils iptables-services bridge-utils bash-completion kexec-tools sos psacct
+  165  yum update
+  166  reboot
+  167  env
+  168  yum -y install   https://dl.fedoraproject.org/pub/epel/epel-release-latest-7.noarch.rpm
+  169  vi /etc/yum.repos.d/epel.repo 
+  170  yum -y --enablerepo=epel install ansible pyOpenSSL
+  171  cd
+  172  git clone https://github.com/openshift/openshift-ansible
+  173  cd openshift-ansible/
+  174  git checkout release-3.11
+  175  vi /etc/ansible/hosts 
+  176  cat /etc/ansible/hosts
+  177  cd /usr/share/
+  178  ls
+  179  cd -
+  180  ls
+  181  ls inventory/
+  182  less inventory/hosts.
+  183  less inventory/hosts.example 
+  184  history
+  185  rpm -V ansible
+  186  repoquery --list ansible
+  187* ls /usr/share/ansible --
+  188  repoquery --list ansible --enablerepo=epel
+  189  repoquery --list ansible --enablerepo=epel |grep prereq
+  190  cd /
+  191  find . -name prerequisites.yml
+  192  cd
+  193  cd openshift-ansible/
+  194  cd playbooks/
+  195  ls
+  196  cd ..
+  197  ls /etc/ansible/
+  198  ls /etc/ansible/roles/
+  199  ls /etc/ansible/ansible.cfg 
+  200  less /etc/ansible/ansible.cfg
+  201  cd ..
+  202  mv openshift-ansible /usr/share
+  203  cd /usr/share
+  204  cd openshift-ansible/
+  205  cd  ..
+  206  ls
+  207  mkdir ansible
+  208  mv openshift-ansible ansible/
+  209  cd ansible/
+  210  pwd
+  211  cd openshift-ansible/
+  212  pwd
+  213  ansible-playbook playbooks/prerequisites.yml 
+  214  ssh cent1
+  215  ansible --help
+  216  ansible --version
+  217  history|grep checkout
+  218  pwd
+  219  git checkout release-3.10
+  220  ls
+  221  ansible-playbook playbooks/prerequisites.yml 
+  222  ansible-playbook playbooks/deploy_cluster.yml 
+  223  vi /etc/ansible/hosts 
+  224  ansible-playbook playbooks/deploy_cluster.yml 
+  225  vi /etc/ansible/hosts 
+  226  cat /etc/ansible/hosts
+  227  less roles/openshift_facts/defaults/main.yml 
+  228  grep infra /etc/hosts
+  229  grep infra /etc/ansible/hosts 
+  230  less roles/openshift_facts/defaults/main.yml 
+  231  vi /etc/ansible/hosts 
+  232  which oc
+  233  echo "oc", "logs", "deployment/webconsole", "--tail=50", "--config=/etc/origin/master/admin.kubeconfig", "-n", "openshift-web-console"]
+  234  echo oc logs deployment/webconsole --tail=50 --config=/etc/origin/master/admin.kubeconfig -n openshift-web-console
+  235  ls /etc/origin/master/admin.kubeconfig
+  236  oc logs deployment/webconsole --tail=50 --config=/etc/origin/master/admin.kubeconfig -n openshift-web-console
+  237  ansible-playbook playbooks/openshift-web-console/config.yml
+  238  history > /tmp/okd.install
