@@ -156,3 +156,6 @@ sudoers: NOTE2/2: make sure you follow the format (just copy another user line &
 rename and set static for centos nmtui     and     hostnamectl set-hostname your-new-hostname
 
 how to ssh into virtualbox - use vbox network->advanced settings add portmap
+
+account-id https://forums.aws.amazon.com/message.jspa?messageID=409028
+account-id curl -s http://169.254.169.254/latest/dynamic/instance-identity/document | grep -oP '(?<="accountId" : ")[^"]*(?=")'
