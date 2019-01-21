@@ -159,3 +159,10 @@ how to ssh into virtualbox - use vbox network->advanced settings add portmap
 
 account-id https://forums.aws.amazon.com/message.jspa?messageID=409028
 account-id curl -s http://169.254.169.254/latest/dynamic/instance-identity/document | grep -oP '(?<="accountId" : ")[^"]*(?=")'
+
+How to use the python format: >>> a={"color":"blue","day":"Monday"}
+How to use the python format: >>> jib="{color}".format(**a)
+How to use the python format: >>> jib
+How to use the python format: 'blue'
+How to use the python format: https://docs.python.org/2/library/string.html
+
